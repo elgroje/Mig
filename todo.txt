@@ -1,0 +1,9 @@
+GENERAL
+
+- las properties pueden leerse tanto del sistema de ficheros como del classpath
+- si la carpeta donde se guardarán los resultados tiene ficheros se debe preguntar al usuario si hay que borrar
+
+
+REPORT GENERATOR
+
+- hay que separar la lista de templates y types. Cuando se selecciona uno o varios tipos, los templates que no pertenecen a estos tipos, se eliminan de la lista  

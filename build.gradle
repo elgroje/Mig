@@ -1,0 +1,61 @@
+apply plugin: 'calypso-java-project'
+
+sourceCompatibility = 1.7
+version = 'krfn-14.4.0.4'
+
+dependencies {
+	compile project(':custom-shared-lib')
+    compile project(':custom-engine')
+	
+	provided fileTree(dir: project(":webstart").projectDir.toString() + "/build/war/application-jars", include: "*.jar")
+	provided fileTree(dir: "../../../../../ocd_home/thirdparty", include: "junit-4.12.jar")
+	provided fileTree(dir: "../../../../../ocd_home/thirdparty", include: "mockito-all-1.9.0.jar")
+    provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "camel-1.4.5-v14-DUP-6.10.2.jar")
+	// For PDF conversion
+	provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "xmlschema-core-2.2.1.jar")
+	provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "slf4j-api-1.7.25.jar")
+    provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "itext7-layout-7.0.5.jar")
+    provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "itext7-kernel-7.0.5.jar")
+    provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "itext7-io-7.0.5.jar")
+    provided fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "html2pdf-1.0.2.jar")
+
+	testCompile fileTree(dir: project(":webstart").projectDir.toString() + "/build/war/application-jars", include: "*.jar")	
+	testCompile fileTree(dir: "../../../../../ocd_home/thirdparty", include: "junit-4.12.jar")
+	testCompile fileTree(dir: "../../../../../ocd_home/thirdparty", include: "mockito-all-1.9.0.jar")
+    testCompile fileTree(dir: "../custom-shared-lib/src/calypso/jars", include: "camel-1.4.5-v14-DUP-6.10.2.jar")
+}
+
+ext.deployment="migration-tools"
+
+// .classpath file with relative path
+eclipse.classpath.file {
+    whenMerged { 
+       classpath ->
+             def containers = classpath.entries.findAll {
+                     entry -> entry.kind == 'lib' && entry.exported == true}.each{
+                         
+                          def componentPath = it.path
+                         
+                          def relativePath = componentPath.substring(componentPath.indexOf('/ocd_home'))
+                         
+                     it.path =  relativePath
+              }
+      }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+            'Implementation-Version': version,
+            'Main-Class': 'com.lostsys.classe.principal.Main'
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+test {
+	scanForTestClasses = false
+    exclude 'calypsox/junitUtil/**'
+    exclude '**/*\$*'
+}
